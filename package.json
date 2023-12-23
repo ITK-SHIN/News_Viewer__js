@@ -20,6 +20,7 @@
     "ast-types-flow": "^0.0.7",
     "available-typed-arrays": "^1.0.5",
     "axe-core": "^4.8.3",
+    "axios": "^1.6.2",
     "axobject-query": "^2.2.0",
     "balanced-match": "^1.0.2",
     "big-integer": "^1.6.52",

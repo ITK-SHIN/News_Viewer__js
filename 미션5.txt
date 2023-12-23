@@ -1,0 +1,25 @@
+미션5 구현하기
+[주의사항]
+1. 이벤트 위임 사용
+2. Axios 라이브러리 사용 가능
+3. 컴포넌트로 구현
+4. ES Module을 사용해 모듈화
+
+[요구사항]
+1. 2개의 컴포넌트로 News Viewer 구성
+2. News API를 사용해 뉴스 취득
+	뉴스는 한 번에 5개씩 취득
+3. 비동기 서버 통신-> Axios 사용하기 + async/await 사용하기
+
+4. 취득한 데이터 처리 
+4-1. 취득한 데이터에 이미지 null인경우 데이터 이미지로 처리해주기
+data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==
+
+4-2. 취득한 데이터에 description이 존재하지 않는경우 -> 빈문자열로
+
+5. 무한스크롤 사용해 페이지네이션 기능 구현하기
+	사용자가 뉴스 마지막까지 스크롤시 다음 뉴스 취득해 기존 뉴스 뒤에 추가
+		-> IntersectionObserver API 사용해 구현
+
+6. 카테고리는 전역 상태로 관리하기
+	Proxy 와 옵저버 패턴을 통해 구현하기
