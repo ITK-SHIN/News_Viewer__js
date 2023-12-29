@@ -1,145 +1,139 @@
-// do something!
-//import axios from "axios";
+export default class NewsList {
+  constructor(data) {
+    this.data = data;
+    this.newsListCon = document.createElement("div");
+    this.newsListCon.className = "news-list-container";
 
-const NEWS_API__KEY1 = "4b5fcfae84d64b68ab6bd73c347c8004";
-const NEWS_API__KEY2 = "9d8be12d479a435ab2ec5ac3cfc249b5";
-const PAGESIZE = 5;
-let PAGE = 1;
-const $root = document.querySelector("#root");
+    this.newsListArticle = document.createElement("article");
+    this.newsListArticle.className = "news-list";
+    this.newsListArticle.dataset.category = data.category;
+    this.newsListCon.appendChild(this.newsListArticle);
 
-const getFirstNewsArticle = async () => {
-  const $fragment = document.createDocumentFragment();
-  const res = await axios.get(
-    `https://newsapi.org/v2/top-headlines?country=kr&category=business&page=${PAGE++}&pageSize=${PAGESIZE}&apiKey=${NEWS_API__KEY2}`
-  );
-  const data = res.data.articles;
-  console.log(data);
-  const $container = document.createElement("div");
-  const $article = document.createElement("article");
-  $container.className = "news-list-container";
-  $article.className = "news-list";
+    this.scrollObserverElement = this.makeObserverElement();
+    this.newsListCon.appendChild(this.scrollObserverElement);
 
-  data.forEach((item) => {
-    const { title, url } = item;
-    let { description, urlToImage } = item;
-    urlToImage =
-      urlToImage ??
-      "data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==";
-    description = description ?? "";
-    const $newsItem = document.createElement("section");
-    $newsItem.className = "news-item";
-    $newsItem.innerHTML = `
-    <div class="thumbnail">
-    <a href=${url} target="_blank" rel="noopener noreferrer">
-    <img src=${urlToImage} alt="thumbnail" />
-    </a>
-    </div>
-    <div class="contents">
-    <h2>
-    <a href=${url} target="_blank" rel="noopener noreferrer">
-    ${title}
-    </a>
-    </h2>
-    <p>
-    ${description}
-    </p>
-    </div>
-    `;
-    $article.appendChild($newsItem);
-  });
+    this.scrollObserver(this.newsListArticle, this.scrollObserverElement);
+  }
 
-  $container.appendChild($article);
-  $fragment.appendChild($container);
-  $root.appendChild($fragment);
+  async updateNewsList() {
+    const newsList = await this.getNewsList(this.data);
+    newsList.forEach((item) => {
+      this.newsListArticle.appendChild(item);
+    });
+  }
 
-  scrollObserver();
-};
+  async getNewsList(page = 1, category, pageSize = 5) {
+    const newsArr = [];
+    const NEWS_API__KEY1 = "4b5fcfae84d64b68ab6bd73c347c8004";
+    const NEWS_API__KEY2 = "9d8be12d479a435ab2ec5ac3cfc249b5";
 
-const scrollObserver = () => {
-  const $scrollObserver = document.createElement("div");
-  $scrollObserver.className = "scroll-observer";
-  $scrollObserver.innerHTML = `
-  <img src="img/ball-triangle.svg" alt="Loading..." />
-  `;
+    let url = `https://newsapi.org/v2/top-headlines?country=kr&category=${
+      category === "all" ? "" : category
+    }&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API__KEY1}`;
 
-  document.querySelector(".news-list-container").appendChild($scrollObserver);
-};
+    const fetchNews = async (url) => {
+      try {
+        const response = await axios.get(url);
+        const articles = response.data.articles;
 
-const getNewsArticle = async () => {
-  const res = await axios.get(
-    `https://newsapi.org/v2/top-headlines?country=kr&category=business&page=${PAGE++}&pageSize=${PAGESIZE}&apiKey=${NEWS_API__KEY2}`
-  );
+        articles.forEach((data) => {
+          if (data.urlToImage === null) {
+            data.urlToImage =
+              "data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==";
+          }
 
-  const $article = document.querySelector(".news-list");
-  const data = res.data.articles;
+          if (data.description === null) {
+            data.description = "";
+          }
 
-  data.forEach((item) => {
-    const { title, url } = item;
-    let { description, urlToImage } = item;
-    urlToImage =
-      urlToImage ??
-      "data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==";
-    description = description ?? "";
-    const $newsItem = document.createElement("section");
-    $newsItem.className = "news-item";
-    $newsItem.innerHTML = `
-    <div class="thumbnail">
-    <a href=${url} target="_blank" rel="noopener noreferrer">
-    <img src=${urlToImage} alt="thumbnail" />
-    </a>
-    </div>
-    <div class="contents">
-    <h2>
-    <a href=${url} target="_blank" rel="noopener noreferrer">
-    ${title}
-    </a>
-    </h2>
-    <p>
-    ${description}
-    </p>
-    </div>
-    `;
-    $article.appendChild($newsItem);
-  });
+          const newsItem = document.createElement("section");
+          newsItem.className = "news-item";
+          newsItem.insertAdjacentHTML(
+            "beforeend",
+            `
+                  <div class="thumbnail">
+                      <a href=${data.url} target="_blank" 
+                      rel="noopener noreferrer">
+                          <img
+                          src=${data.urlToImage}
+                          alt="thumbnail" />
+                      </a>
+                  </div>
+                  <div class="contents">
+                      <h2>
+                          <a href=${data.url} target="_blank" 
+                          rel="noopener noreferrer">
+                          ${data.title}
+                          </a>
+                      </h2>
+                      <p>
+                      ${data.description}
+                      </p>
+                  </div>
+              `
+          );
+          newsArr.push(newsItem);
+        });
+        return newsArr;
+      } catch (error) {
+        if (error.response && error.response.status === 429) {
+          url = `https://newsapi.org/v2/top-headlines?country=kr&category=${
+            category === "all" ? "" : category
+          }&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API__KEY2}`;
+          return await fetchNews(url);
+        }
 
-  console.log(data);
-  data.length !== 0 ? scrollObserver() : null;
-};
+        return [];
+      }
+    };
 
-const callback = (entries, observer) => {
-  entries.forEach((entry) => {
-    console.log(entry);
-    if (entry.isIntersecting) {
-      getNewsArticle();
-    } else {
-      console.log("false");
-    }
-  });
-};
+    return await fetchNews(url);
+  }
 
-const observeScrollOb = () => {
-  const observer = new IntersectionObserver(callback);
-  const $scrollObserve = document.querySelector(".scroll-observer");
-  //console.log($scrollObserve);
-  observer.observe($scrollObserve);
-};
+  makeObserverElement() {
+    const observerElement = document.createElement("div");
+    observerElement.className = "scroll-observer";
+    observerElement.dataset.page = "1";
 
-const NewsList = async () => {
-  await getFirstNewsArticle();
-  observeScrollOb();
-};
+    const observerImg = document.createElement("img");
+    observerImg.src = "./img/ball-triangle.svg";
+    observerImg.alt = "Loading...";
 
-export default NewsList;
+    observerElement.appendChild(observerImg);
 
-/*
-const url = `https://newsapi.org/v2/top-headlines?country=kr&category=${category === 'all' ? '' : category}&page=${page}&pageSize=${pageSize}&apiKey=${apiKey}`
-*/
-/*
-business
-entertainment
-general
-health
-science
-sports
-technology
-*/
+    return observerElement;
+  }
+
+  scrollObserver(newsListArticle, scrollObserverElement) {
+    const callback = async (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const nextPage = parseInt(entry.target.dataset["page"]);
+          const category = newsListArticle.dataset.category;
+
+          const newsList = await this.getNewsList(nextPage, category);
+          entry.target.dataset["page"] = nextPage + 1;
+
+          if (newsList.length > 0) {
+            newsList.forEach((data) => {
+              newsListArticle.appendChild(data);
+            });
+            continue;
+          }
+          io.unobserve(entry.target);
+          entry.target.remove();
+        }
+      }
+    };
+
+    const io = new IntersectionObserver(callback, {
+      threshold: 0.8,
+      rootMargin: "",
+    });
+    io.observe(this.scrollObserverElement);
+  }
+
+  get element() {
+    return this.newsListCon;
+  }
+}

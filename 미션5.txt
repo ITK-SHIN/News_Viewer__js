@@ -29,3 +29,34 @@ data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw
 
 [ ]6. 카테고리는 전역 상태로 관리하기
 	Proxy 와 옵저버 패턴을 통해 구현하기
+
+	<6. 생각과정>
+	1. 옵저버 패턴으로 Nav를 구독한다. 
+		1-1. Nav의 카테고리가 변경되면 proxy를 사용해 가로채고,
+		NewsList 컴포넌트는 새롭게 뉴스를 취득해 리렌더링한다.
+
+[전체 흐름 정리]
+1. 첫 페이지가 로드시, 
+	전역상태인 NavState의 category는 'all' 상태로 
+	getNewsArticle로 뉴스를 불러와서 화면에 그려준다. 
+
+ 	scroll-observer를 만나면 새 뉴스를 불러와서 마지막 뉴스까지
+	무한 스크롤된다.
+
+2. 사용자의 카테고리 조작시,
+	전역상태인 NavState의 category는 사용자가 선택한 '???' 상태로
+	getNewsArticle로 뉴스를 불러와서 화면에 그려준다.
+	(이것은 아마도 innerHTML을 사용하면 될듯?)
+
+	scroll-observer를 만나면 새 뉴스를 불러와서 마지막 뉴스까지
+	무한 스크롤된다.
+
+
+
+
+
+
+
+
+
+
