@@ -1,3 +1,5 @@
+import config from "../../apikey.js";
+
 export default class NewsList {
   constructor(data) {
     this.data = data;
@@ -7,6 +9,7 @@ export default class NewsList {
     this.newsListArticle = document.createElement("article");
     this.newsListArticle.className = "news-list";
     this.newsListArticle.dataset.category = data.category;
+
     this.newsListCon.appendChild(this.newsListArticle);
 
     this.scrollObserverElement = this.makeObserverElement();
@@ -24,14 +27,15 @@ export default class NewsList {
 
   async getNewsList(page = 1, category, pageSize = 5) {
     const newsArr = [];
-    const NEWS_API__KEY1 = "4b5fcfae84d64b68ab6bd73c347c8004";
-    const NEWS_API__KEY2 = "9d8be12d479a435ab2ec5ac3cfc249b5";
+    const NEWS_API__KEY1 = config.NEWS_API__KEY1;
+    const NEWS_API__KEY2 = config.NEWS_API__KEY2;
+    const NEWS_API__KEY3 = config.NEWS_API__KEY3;
 
     let url = `https://newsapi.org/v2/top-headlines?country=kr&category=${
       category === "all" ? "" : category
     }&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API__KEY1}`;
 
-    const fetchNews = async (url) => {
+    const fetchNews = async (url, keyNumber = 1) => {
       try {
         const response = await axios.get(url);
         const articles = response.data.articles;
@@ -74,13 +78,19 @@ export default class NewsList {
           );
           newsArr.push(newsItem);
         });
+
         return newsArr;
       } catch (error) {
         if (error.response && error.response.status === 429) {
+          let nextKey;
+          if (keyNumber === 1) nextKey = NEWS_API__KEY2;
+          else if (keyNumber === 2) nextKey = NEWS_API__KEY3;
+          else return []; // 모든 키 사용됨
+
           url = `https://newsapi.org/v2/top-headlines?country=kr&category=${
             category === "all" ? "" : category
-          }&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API__KEY2}`;
-          return await fetchNews(url);
+          }&page=${page}&pageSize=${pageSize}&apiKey=${nextKey}`;
+          return await fetchNews(url, keyNumber + 1);
         }
 
         return [];

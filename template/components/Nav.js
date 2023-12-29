@@ -29,7 +29,6 @@ class Nav {
         this.data.category = e.target.id;
       }
     });
-    console.log(this.data);
   }
 
   get element() {

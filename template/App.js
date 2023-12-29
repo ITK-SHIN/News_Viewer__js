@@ -25,6 +25,7 @@ const navElement = new Nav(proxyData);
 $rootElement.appendChild(navElement.element);
 
 const newsList = new NewsList(proxyData);
+console.log(newsList);
 await newsList.updateNewsList();
 
 $rootElement.appendChild(newsList.element);
