@@ -22,13 +22,37 @@ Nav 인스턴스 생성 -> navElement에 할당
 
 2. 메서드 기능
 	undateNewsList()
+		1) getNewsList를 호출하여 newsArr 배열을 받아온다.
+		2) newsList를 돌면서 각 section들을 this.newsListArticle의
+		자식요소로 넣어준다.  
 		
-	getNewsList()
+	getNewsList(page=1, category, pageSize=5)
+		1) fetchNews(url)를 호출한다.  
+		+ fetchNews(url)
+			1)NewsAPI를 호출해 데이터를 받아오고
+			2) newsItem을 만들어 newsArr에 넣어준다.
+			3) newsArr을 반환한다.
+			4) 429 에러 발생시 APIKEY2로 fetchNews를 호출
+				429에러가 아닐때는 빈 배열 반환
 
 	makeObserverElement()
+		1) observerElement를 만들고 반환한다.
 
 	scrollobserver()
+		1) IntersectionObserverAPI를 사용해 인스턴스를 생성하고
+		2) scrollObserverElement요소를 관찰 대상으로 등록한다.
+		3) entry.isIntersecting가 true이면 
+		   getNewsList(nextPage, categoty)를 호출한다
 
 	get element()
 		$newsListCon을 반환한다.
+
+-----------------------------
+Nav 
+1. News 리스트 갈아 치우는것만 고치면 좋을것 같다. 
+1. 같은경우 동적으로 생성하는게 좋을것 같다.
+2. 25번쨰줄에서 active를 따로 querySelector로 찾아줘서 제거하고
+	e.target부분에 따로 active를 주면 좋을 것 같다. 
+
+
 	
